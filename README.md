@@ -14,17 +14,27 @@ When working with AI coding assistants on large tasks, you often hit context lim
 ## Workflow Overview
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Research   │────▶│    Plan     │────▶│  Implement  │
-│             │     │             │     │             │
-│ 4 Explore   │     │ Batch +     │     │ Sub-Agents  │
-│ Agents      │     │ Task Design │     │ + Tracking  │
-└─────────────┘     └─────────────┘     └─────────────┘
-      │                   │                   │
-      ▼                   ▼                   ▼
- research.md          plan.md            TaskList
- rpi-main.md         (Tasks created)     (Progress)
+┌─────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  Rule   │────▶│  Research   │────▶│    Plan     │────▶│  Implement  │────▶│   Verify    │
+│(optional)│     │             │     │             │     │             │     │             │
+│ Project │     │ 4 Explore   │     │ Batch +     │     │ Sub-Agents  │     │ Build/Test  │
+│ Context │     │ Agents      │     │ Task Design │     │ + Tracking  │     │ + Plan Check│
+└─────────┘     └─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+      │               │                   │                   │                   │
+      ▼               ▼                   ▼                   ▼                   ▼
+ rules/*.md      research.md          plan.md            TaskList           verify.md
+                 rpi-main.md        (Tasks created)      (Progress)          (Report)
 ```
+
+### Setup: Rule (`/rpi:rule`) - Optional
+
+Define project-specific rules to guide Research agents:
+- **architecture**: Layer structure, module patterns
+- **patterns**: Code style, naming conventions
+- **dependencies**: DI patterns, module boundaries
+- **testing**: Test framework, mocking patterns
+
+**Output**: `~/.claude/rpi/rules/[type]/[project].md`
 
 ### Phase 1: Research (`/rpi:research`)
 
@@ -53,6 +63,15 @@ Executes tasks via Sub-Agents:
 - Seamless session resume via TaskList
 
 **Output**: Working code with tracked progress
+
+### Phase 4: Verify (`/rpi:verify`)
+
+Validates implementation completeness:
+- **Build verification**: Auto-detects project type (Swift, Node, Rust, Go, etc.)
+- **Test verification**: Runs project test suite
+- **Plan check**: Compares implementation against plan.md
+
+**Output**: `verify.md` (report) - Creates fix tasks if issues found
 
 ## Installation
 
@@ -88,6 +107,10 @@ cp templates/*.md ~/.claude/rpi/
 ### Starting a New Feature
 
 ```bash
+# 0. (Optional) Setup project rules first time
+/rpi:rule add architecture
+/rpi:rule add testing
+
 # 1. Research phase
 /rpi:research
 # "RPI로 [기능명] 구현하자" or "Start RPI research for [feature]"
@@ -106,6 +129,10 @@ export CLAUDE_CODE_TASK_LIST_ID="[id from TaskList]"
 # 5. Implement phase
 /rpi:implement
 # "TaskList 확인하고 구현 시작"
+
+# 6. After all tasks complete
+/rpi:verify
+# Validates build, tests, and plan implementation
 ```
 
 ### Resuming Work
@@ -132,11 +159,13 @@ When context usage exceeds 40% (check Status Line):
 │   ├── research.md        # /rpi:research
 │   ├── plan.md            # /rpi:plan
 │   ├── implement.md       # /rpi:implement
+│   ├── verify.md          # /rpi:verify
 │   └── rule.md            # /rpi:rule
 └── rpi/                   # Templates & Rules
     ├── rpi-main-template.md
     ├── research-template.md
     ├── plan-template.md
+    ├── verify-template.md
     ├── rule-template.md
     └── rules/             # Project-specific rules
         ├── architecture/
@@ -148,6 +177,7 @@ your-project/
 └── docs/
     ├── research/[branch]/  # Research outputs
     ├── plans/[branch]/     # Plan documents
+    ├── verify/[branch]/    # Verification reports
     └── rpi/[branch]/       # RPI status tracking
 ```
 
