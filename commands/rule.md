@@ -54,52 +54,55 @@ Removes a rule file for the specified type.
 ### Adding a Rule
 
 1. User runs `/rpi:rule add [type]`
-2. Check if rule already exists at `~/.claude/rpi/rules/[type]/[project-name].md`
-3. If exists, ask: Update existing or create new?
-4. Load template from `~/.claude/rpi/rule-template.md`
-5. Ask user for rule content via AskUserQuestion or direct input
-6. Write rule file
+2. Detect project root (git root or current directory)
+3. Check if rule already exists at `<project>/.claude/rules/[type].md`
+4. If exists, ask: Update existing or create new?
+5. Load template from `~/.claude/rpi/rule-template.md`
+6. Ask user for rule content via AskUserQuestion or direct input
+7. Create `<project>/.claude/rules/` directory if needed
+8. Write rule file
 
 ### Listing Rules
 
 1. User runs `/rpi:rule list`
-2. Glob for `~/.claude/rpi/rules/*/[project-name].md`
+2. Glob for `<project>/.claude/rules/*.md`
 3. Display found rules with summary
 
 ### Removing a Rule
 
 1. User runs `/rpi:rule remove [type]`
-2. Check if rule exists
+2. Check if rule exists at `<project>/.claude/rules/[type].md`
 3. Confirm deletion
 4. Delete file
 
-## Project Name Detection
+## Project Root Detection
 
-Detect project name from (in order):
-1. Git repository name (`git rev-parse --show-toplevel | xargs basename`)
-2. Current directory name
+Detect project root from (in order):
+1. Git repository root (`git rev-parse --show-toplevel`)
+2. Current working directory
 3. Ask user if unable to detect
 
 ## Rule File Location
 
 ```
-~/.claude/rpi/rules/
-├── architecture/
-│   └── [project-name].md
-├── patterns/
-│   └── [project-name].md
-├── dependencies/
-│   └── [project-name].md
-└── testing/
-    └── [project-name].md
+<project>/.claude/rules/
+├── architecture.md
+├── patterns.md
+├── dependencies.md
+└── testing.md
 ```
+
+**Benefits of project-local rules:**
+- Version controlled with git
+- Shared with team members
+- Portable with the project
 
 ## Integration with Research Phase
 
 When `/rpi:research` runs:
 
-1. Detect project name
-2. Check for rules in `~/.claude/rpi/rules/[type]/[project-name].md`
+1. Detect project root
+2. Check for rules in `<project>/.claude/rules/[type].md`
 3. If rule exists, include in agent prompt:
 
 ```
@@ -120,7 +123,7 @@ Each rule file should contain:
 
 **User**: `/rpi:rule add architecture`
 
-**Claude**: "Creating architecture rule for project 'MyApp'.
+**Claude**: "Creating architecture rule for this project.
 
 What architecture patterns does this project follow?
 - Layer structure (e.g., Clean Architecture, MVVM)
@@ -129,7 +132,7 @@ What architecture patterns does this project follow?
 
 **User**: "Clean Architecture with Domain/Data/Presentation layers. Domain has no external dependencies."
 
-**Claude**: "Rule saved to `~/.claude/rpi/rules/architecture/MyApp.md`
+**Claude**: "Rule saved to `.claude/rules/architecture.md`
 
 This rule will be used by the Architecture Agent during `/rpi:research`."
 
@@ -139,12 +142,12 @@ This rule will be used by the Architecture Agent during `/rpi:research`."
 
 **Claude**:
 ```
-Rules for 'MyApp':
+Project rules at .claude/rules/:
 
-✓ architecture - Clean Architecture, Domain/Data/Presentation
-✓ testing - XCTest with Swift Testing, 80% coverage target
-✗ patterns - Not defined
-✗ dependencies - Not defined
+✓ architecture.md - Clean Architecture, Domain/Data/Presentation
+✓ testing.md - XCTest with Swift Testing, 80% coverage target
+✗ patterns.md - Not defined
+✗ dependencies.md - Not defined
 
 Use `/rpi:rule add [type]` to add missing rules.
 ```

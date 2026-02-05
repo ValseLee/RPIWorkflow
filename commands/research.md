@@ -23,16 +23,16 @@ Research is the first phase of the RPI workflow. Run 4 Explore Agents in paralle
 Before launching Explore Agents, check for project-specific rules:
 
 ```
-~/.claude/rpi/rules/
-├── architecture/[project-name].md  → Architecture Agent
-├── patterns/[project-name].md      → Similar Feature Agent
-├── dependencies/[project-name].md  → Dependency Agent
-└── testing/[project-name].md       → Test Structure Agent
+<project>/.claude/rules/
+├── architecture.md   → Architecture Agent
+├── patterns.md       → Similar Feature Agent
+├── dependencies.md   → Dependency Agent
+└── testing.md        → Test Structure Agent
 ```
 
 **How to load:**
-1. Detect project name (git repo name or directory name)
-2. Check if rule file exists for each type
+1. Detect project root (git root or current directory)
+2. Check if rule file exists at `<project>/.claude/rules/[type].md`
 3. If exists, append rule content to agent prompt
 
 **Create rules with:** `/rpi:rule add [type]`
@@ -77,7 +77,7 @@ Find:
 - Directory organization
 Return: Architecture summary with key file paths
 
-[If ~/.claude/rpi/rules/architecture/[project].md exists, append:]
+[If .claude/rules/architecture.md exists, append:]
 Project Rules:
 [rule content]
 ```
@@ -91,7 +91,7 @@ Look for:
 - Reference files to follow
 Return: List of reference files with pattern notes
 
-[If ~/.claude/rpi/rules/patterns/[project].md exists, append:]
+[If .claude/rules/patterns.md exists, append:]
 Project Rules:
 [rule content]
 ```
@@ -105,7 +105,7 @@ Identify:
 - Potential impact scope
 Return: Affected files list with change types
 
-[If ~/.claude/rpi/rules/dependencies/[project].md exists, append:]
+[If .claude/rules/dependencies.md exists, append:]
 Project Rules:
 [rule content]
 ```
@@ -119,7 +119,7 @@ Find:
 - Mock patterns and fixtures
 Return: Test patterns with examples
 
-[If ~/.claude/rpi/rules/testing/[project].md exists, append:]
+[If .claude/rules/testing.md exists, append:]
 Project Rules:
 [rule content]
 ```

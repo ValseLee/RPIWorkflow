@@ -16,7 +16,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
 COMMANDS_DIR="$CLAUDE_DIR/commands/rpi"
 TEMPLATES_DIR="$CLAUDE_DIR/rpi"
-RULES_DIR="$TEMPLATES_DIR/rules"
 
 echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       RPI Workflow Installer           ║${NC}"
@@ -42,20 +41,15 @@ backup_if_exists() {
 }
 
 # Create directories
-echo -e "${GREEN}[1/5]${NC} Creating directories..."
+echo -e "${GREEN}[1/4]${NC} Creating directories..."
 mkdir -p "$COMMANDS_DIR"
 mkdir -p "$TEMPLATES_DIR"
-mkdir -p "$RULES_DIR/architecture"
-mkdir -p "$RULES_DIR/patterns"
-mkdir -p "$RULES_DIR/dependencies"
-mkdir -p "$RULES_DIR/testing"
 echo "  ✓ $COMMANDS_DIR"
 echo "  ✓ $TEMPLATES_DIR"
-echo "  ✓ $RULES_DIR/{architecture,patterns,dependencies,testing}"
 echo ""
 
 # Install commands
-echo -e "${GREEN}[2/5]${NC} Installing commands..."
+echo -e "${GREEN}[2/4]${NC} Installing commands..."
 for file in "$SCRIPT_DIR/commands"/*.md; do
     filename=$(basename "$file")
     target="$COMMANDS_DIR/$filename"
@@ -66,7 +60,7 @@ done
 echo ""
 
 # Install templates
-echo -e "${GREEN}[3/5]${NC} Installing templates..."
+echo -e "${GREEN}[3/4]${NC} Installing templates..."
 for file in "$SCRIPT_DIR/templates"/*.md; do
     filename=$(basename "$file")
     target="$TEMPLATES_DIR/$filename"
@@ -76,25 +70,8 @@ for file in "$SCRIPT_DIR/templates"/*.md; do
 done
 echo ""
 
-# Install rule examples
-echo -e "${GREEN}[4/5]${NC} Installing rule examples..."
-if [ -d "$SCRIPT_DIR/templates/rules" ]; then
-    for file in "$SCRIPT_DIR/templates/rules"/*.md; do
-        if [ -f "$file" ]; then
-            filename=$(basename "$file")
-            target="$TEMPLATES_DIR/rules/$filename"
-            backup_if_exists "$target"
-            cp "$file" "$target"
-            echo "  ✓ $filename"
-        fi
-    done
-else
-    echo "  (no rule examples found)"
-fi
-echo ""
-
 # Verify installation
-echo -e "${GREEN}[5/5]${NC} Verifying installation..."
+echo -e "${GREEN}[4/4]${NC} Verifying installation..."
 errors=0
 
 for cmd in research plan implement rule; do
@@ -115,15 +92,6 @@ for tpl in rpi-main-template research-template plan-template rule-template; do
     fi
 done
 
-# Check rule directories
-for ruletype in architecture patterns dependencies testing; do
-    if [ -d "$RULES_DIR/$ruletype" ]; then
-        echo "  ✓ rules/$ruletype/"
-    else
-        echo -e "  ${RED}✗ rules/$ruletype/ missing${NC}"
-        ((errors++))
-    fi
-done
 echo ""
 
 # Summary
@@ -138,8 +106,7 @@ if [ $errors -eq 0 ]; then
     echo "  /rpi:implement - Execute the plan"
     echo "  /rpi:rule      - Manage project-specific rules"
     echo ""
-    echo "Rule directories created at:"
-    echo "  $RULES_DIR/"
+    echo "Rules are stored per-project at: <project>/.claude/rules/"
     echo ""
     echo "Restart Claude Code or start a new session to use."
 else
