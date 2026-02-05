@@ -6,7 +6,7 @@ Thank you for your interest in contributing to RPI Workflow! This document provi
 
 ### Reporting Bugs
 
-1. **Check existing issues** - Search [GitHub Issues](https://github.com/celan/RPIWorkflow/issues) to avoid duplicates
+1. **Check existing issues** - Search [GitHub Issues](https://github.com/ValseLee/RPIWorkflow/issues) to avoid duplicates
 2. **Create a new issue** with:
    - Clear, descriptive title
    - Steps to reproduce
@@ -127,7 +127,7 @@ Test with different project types:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/celan/RPIWorkflow.git
+   git clone https://github.com/ValseLee/RPIWorkflow.git
    cd RPIWorkflow
    ```
 
@@ -150,7 +150,7 @@ Test with different project types:
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/celan/RPIWorkflow/discussions) for questions
+- Open a [Discussion](https://github.com/ValseLee/RPIWorkflow/discussions) for questions
 - Check existing issues for similar problems
 
 ## License

@@ -60,7 +60,7 @@ Executes tasks via Sub-Agents:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/RPIWorkflow.git
+git clone https://github.com/ValseLee/RPIWorkflow.git
 cd RPIWorkflow
 
 # Run install script
