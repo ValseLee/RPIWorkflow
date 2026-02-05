@@ -35,7 +35,8 @@ flowchart TB
     Start[User: /rpi:verify] --> Load[Load rpi-main + plan]
     Load --> TaskCheck[TaskList - all completed?]
     TaskCheck -->|No| Abort[Abort: Complete implement first]
-    TaskCheck -->|Yes| Build[Run build verification]
+    TaskCheck -->|Yes| Detect[Detect project type]
+    Detect --> Build[Run build verification]
     Build -->|Fail| Report[Generate failure report]
     Build -->|Pass| Test[Run test verification]
     Test -->|Fail| Report
@@ -62,33 +63,64 @@ TaskList - verify ALL tasks are status: completed
 
 If any task is not completed, abort verification and guide user to complete implementation first.
 
-### 2. Build Verification
+### 2. Project Type Detection
 
-Run build command for the project:
+Detect project type from files in root directory:
+
+| File Found | Project Type | Build Command | Test Command |
+|------------|--------------|---------------|--------------|
+| `Package.swift` | Swift Package | `swift build` | `swift test` |
+| `*.xcodeproj` or `*.xcworkspace` | iOS/macOS | `xcodebuild build` | `xcodebuild test` |
+| `package.json` | Node.js | `npm run build` | `npm test` |
+| `Cargo.toml` | Rust | `cargo build` | `cargo test` |
+| `go.mod` | Go | `go build ./...` | `go test ./...` |
+| `pom.xml` | Java (Maven) | `mvn compile` | `mvn test` |
+| `build.gradle` | Java/Kotlin (Gradle) | `./gradlew build` | `./gradlew test` |
+| `requirements.txt` or `pyproject.toml` | Python | `python -m py_compile` | `pytest` |
+| `Gemfile` | Ruby | `bundle install` | `bundle exec rspec` |
+| `Makefile` | Generic | `make` | `make test` |
+
+**Priority**: If multiple files exist, use the most specific (e.g., prefer `Package.swift` over `Makefile`).
+
+**Override**: If `research.md` specifies custom build/test commands, use those instead.
+
+### 3. Build Verification
+
+Run detected or configured build command:
 
 ```bash
-# iOS/Swift project
-xcodebuild -scheme [SchemeName] -destination 'platform=iOS Simulator,name=iPhone 16' build
+# Use detected command from step 2
+# Or use project-specific command from research.md
 
-# Or use project-specific build command from research.md
+# Examples:
+# Swift Package: swift build
+# iOS/macOS: xcodebuild -scheme [Scheme] -destination '[dest]' build
+# Node.js: npm run build
+# Rust: cargo build
+# Go: go build ./...
 ```
 
 Capture build output. If build fails, proceed to report generation.
 
-### 3. Test Verification
+### 4. Test Verification
 
-Run test command for the project:
+Run detected or configured test command:
 
 ```bash
-# iOS/Swift project
-xcodebuild test -scheme [SchemeName] -destination 'platform=iOS Simulator,name=iPhone 16'
+# Use detected command from step 2
+# Or use project-specific command from research.md
 
-# Or use project-specific test command from research.md
+# Examples:
+# Swift Package: swift test
+# iOS/macOS: xcodebuild test -scheme [Scheme] -destination '[dest]'
+# Node.js: npm test
+# Rust: cargo test
+# Go: go test ./...
 ```
 
 Capture test output. If tests fail, proceed to report generation.
 
-### 4. Plan vs Implementation Check
+### 5. Plan vs Implementation Check
 
 Launch a Verify Agent to check plan.md against actual implementation:
 
@@ -130,7 +162,7 @@ All verifications passed.
 
 ## Build Verification
 - **Status**: ✅ PASSED
-- **Command**: `xcodebuild ...`
+- **Command**: `[detected or configured build command]`
 - **Duration**: X seconds
 
 ## Test Verification
@@ -143,8 +175,8 @@ All verifications passed.
 
 | Step | File | Status | Notes |
 |------|------|--------|-------|
-| 1 | path/to/file.swift | ✅ | Implemented as planned |
-| 2 | path/to/file.swift | ✅ | Implemented as planned |
+| 1 | path/to/file | ✅ | Implemented as planned |
+| 2 | path/to/file | ✅ | Implemented as planned |
 | ... | ... | ... | ... |
 
 ## Conclusion
@@ -183,8 +215,8 @@ Verification failed. Issues found: N
 
 | Step | File | Status | Notes |
 |------|------|--------|-------|
-| 1 | path/to/file.swift | ✅ | OK |
-| 2 | path/to/file.swift | ❌ | Missing: [what's missing] |
+| 1 | path/to/file | ✅ | OK |
+| 2 | path/to/file | ❌ | Missing: [what's missing] |
 | ... | ... | ... | ... |
 
 ## Issues Found
@@ -201,11 +233,11 @@ Verification failed. Issues found: N
 ## Recommended Fix Tasks
 
 1. **Fix: [Issue 1 Title]**
-   - File: path/to/file.swift
+   - File: path/to/file
    - Action: [what to do]
 
 2. **Fix: [Issue 2 Title]**
-   - File: path/to/file.swift
+   - File: path/to/file
    - Action: [what to do]
 ```
 

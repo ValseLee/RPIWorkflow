@@ -33,20 +33,47 @@ If your project has rule documents, load relevant ones based on task content:
 - `@docs/plans/[branch]/...-plan.md`
 - **`TaskList`** (primary progress tracking)
 
-## CRITICAL: Sub-Agent Execution
+## Sub-Agent Execution Policy
 
-<MANDATORY>
-**NEVER execute tasks directly in main context.**
+### Default: Use Sub-Agents
 
-- NEVER use Write/Edit tools directly for task implementation
-- ALWAYS launch Sub-Agents via Task tool for ALL implementation work
-- Main context is ONLY for: TaskList, TaskUpdate, coordination, verification
+For most tasks, launch Sub-Agents via Task tool:
 
-**Why?**
 - Keeps main context clean for orchestration
 - Enables true parallel execution
 - Prevents context bloat from implementation details
-</MANDATORY>
+
+### Exception: Trivial Tasks (Direct Execution Allowed)
+
+You MAY execute directly in main context when ALL of these apply:
+
+| Criteria | Example |
+|----------|---------|
+| Single file change | One config file update |
+| < 5 lines modified | Adding an import statement |
+| No logic changes | Renaming, fixing typos |
+| No test required | Config, comments, formatting |
+
+**Trivial task examples:**
+- Adding a single import statement
+- Fixing a typo in a string
+- Updating a version number in config
+- Adding a comment or documentation line
+
+**NOT trivial (must use Sub-Agent):**
+- Any new function or method
+- Any logic change
+- Multiple file modifications
+- Changes requiring tests
+
+### Anti-pattern (DO NOT DO THIS for non-trivial tasks)
+
+```
+# WRONG - Direct execution for complex task
+TaskUpdate [id] status: in_progress
+Write(file_path="...", content="...")  # <- Complex task, should use Sub-Agent
+TaskUpdate [id] status: completed
+```
 
 ## Workflow
 
@@ -101,16 +128,6 @@ flowchart TB
 4. TaskUpdate each as completed
 5. Check TaskList for newly unblocked tasks
 6. Repeat until all tasks complete
-```
-
-### Anti-pattern (DO NOT DO THIS)
-
-```
-# WRONG - Direct execution in main context
-TaskUpdate [id] status: in_progress
-Write(file_path="...", content="...")  # <- NEVER DO THIS
-Edit(file_path="...", old_string="...")  # <- NEVER DO THIS
-TaskUpdate [id] status: completed
 ```
 
 ## Sub-Agent Prompt Template
@@ -185,23 +202,49 @@ Next steps:
 
 ## Recovery
 
-If session was interrupted:
+### If session was interrupted (env var set):
 
 1. Run `TaskList` - see current progress
 2. Find first pending task (status != completed)
 3. Check blockedBy - if blocked, find and complete blockers first
 4. Continue execution
 
-If TaskList is empty (env var not set):
+### If TaskList is empty (env var not set):
+
+**Step 1**: Check rpi-main.md for saved Task List ID
 ```
-Recreate tasks from @docs/plans/[branch]/...-plan.md
+Read @docs/rpi/[branch]/rpi-main.md
+Look for "Task List ID: [id]"
+```
+
+**Step 2**: If ID found, set environment variable
+```bash
+export CLAUDE_CODE_TASK_LIST_ID="[id from rpi-main.md]"
+```
+
+**Step 3**: If ID invalid or not found, recreate tasks
+```
+1. Read @docs/plans/[branch]/...-plan.md
+2. TaskCreate for each Step in the plan
+3. TaskUpdate to set dependencies (blockedBy)
+4. Mark already-completed tasks (check git diff or file existence)
+5. Save new Task List ID to rpi-main.md
+6. export CLAUDE_CODE_TASK_LIST_ID="[new_id]"
+```
+
+### Quick Recovery Command
+
+If user provides rpi-main.md reference:
+```
+@docs/rpi/[branch]/rpi-main.md - check Task List ID and recover progress
 ```
 
 ## Red Flags - STOP
 
-- Using Write/Edit directly in main context (MUST use Sub-Agent!)
+- Using Write/Edit directly for NON-TRIVIAL tasks (use Sub-Agent!)
 - Launching parallel tasks in separate messages (must be ONE message)
 - Running dependent tasks in parallel (check blockedBy!)
 - Parallel tasks modifying same file (will cause conflicts)
 - Continuing past 40% context without asking about Compact
 - Forgetting to TaskUpdate completed tasks
+- Not checking rpi-main.md for Task List ID before recreating tasks

@@ -138,6 +138,30 @@ export CLAUDE_CODE_TASK_LIST_ID="[task_list_id]"
 **Without this, Tasks will be lost on /clear!**
 </CRITICAL>
 
+### Fallback: Recovery without Environment Variable
+
+If user forgot to set the environment variable:
+
+1. **Check rpi-main.md** - Task List ID is recorded there
+2. **Set environment variable** from recorded ID:
+   ```bash
+   export CLAUDE_CODE_TASK_LIST_ID="[id from rpi-main.md]"
+   ```
+3. **If ID is invalid/expired** - Recreate tasks from plan.md:
+   ```
+   1. Read plan.md
+   2. TaskCreate for each Step
+   3. TaskUpdate to set dependencies
+   4. Save new Task List ID to rpi-main.md
+   ```
+
+### Best Practice: Multiple Persistence Points
+
+Always record Task List ID in these locations:
+1. **Environment variable** - Primary (for session persistence)
+2. **rpi-main.md** - Backup (for recovery)
+3. **plan.md footer** - Reference (for documentation)
+
 ## Exit Conditions
 
 Before guiding user to `/clear`:
@@ -146,8 +170,9 @@ Before guiding user to `/clear`:
 - [ ] All Steps have TaskCreate called
 - [ ] Dependencies set via TaskUpdate
 - [ ] User approved the plan
-- [ ] User ran `export CLAUDE_CODE_TASK_LIST_ID="..."`
-- [ ] rpi-main.md updated with Task List ID
+- [ ] Task List ID recorded in rpi-main.md (backup)
+- [ ] Task List ID appended to plan.md footer (reference)
+- [ ] User ran `export CLAUDE_CODE_TASK_LIST_ID="..."` (primary)
 
 ## Exit Message Template
 
