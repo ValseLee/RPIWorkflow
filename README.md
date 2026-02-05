@@ -11,6 +11,27 @@ When working with AI coding assistants on large tasks, you often hit context lim
 - **Enabling parallelism**: Research uses 4 parallel Explore agents; Implementation uses parallel Sub-Agents
 - **Tracking progress**: Claude Tasks persist across `/clear` commands
 
+## When to Use RPI
+
+### Best for Brownfield Projects
+
+RPI shines when working with **existing codebases**:
+
+- Adding features to mature projects
+- Bug fixes requiring deep context understanding
+- Refactoring with safety guarantees
+- Any task where understanding existing code is as important as writing new code
+
+The Research phase deploys **4 parallel Explore Agents** to thoroughly understand your codebase before making changes. This "understand first, change safely" approach is what makes RPI ideal for brownfield development.
+
+### For Greenfield Projects?
+
+For brand new projects with no existing code:
+- Consider using `/gsd:new-project` for initial setup and architecture decisions
+- Transition to RPI once your codebase has foundational structure (entities, core modules, basic patterns)
+
+**Rule of thumb**: If there's code worth researching, RPI is the right choice.
+
 ## Workflow Overview
 
 ```
