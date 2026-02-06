@@ -194,7 +194,7 @@ Task(prompt="Execute Task 2: Create Product model...")
 - [ ] Plan reviewed by user
 - [ ] Questions answered
 - [ ] **Tasks created for all Steps**
-- [ ] **CLAUDE_CODE_TASK_LIST_ID exported** (see below)
+- [ ] **Session ID retrieved via `<session info>`**
 - [ ] Ready to implement
 
 ---
@@ -202,18 +202,26 @@ Task(prompt="Execute Task 2: Create Product model...")
 **Approved**: Yes / No
 **Approval Date**: YYYY-MM-DD
 **Tasks Created**: Yes / No
-**Task List ID**: [from TaskList output]
+**Session ID**: [from session info hook]
 **Notes**: Any conditions or modifications to the plan
 
 ---
 
 ## Session Handoff (CRITICAL)
 
-After Tasks are created, run `TaskList` to get the `task_list_id`, then:
+After Tasks are created, retrieve session ID and save it:
 
-```bash
-# Set this BEFORE running /clear to preserve TaskList across sessions
-export CLAUDE_CODE_TASK_LIST_ID="[task_list_id from TaskList output]"
+### Step 1: Get Session ID
+Type `<session info>` to trigger the hook and get the current session ID.
+
+### Step 2: Save to settings.local.json
+```json
+// .claude/settings.local.json
+{
+  "env": {
+    "CLAUDE_CODE_TASK_LIST_ID": "[session_id from hook]"
+  }
+}
 ```
 
 **Without this step, Tasks will be lost on /clear!**
