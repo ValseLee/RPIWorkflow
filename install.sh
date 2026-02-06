@@ -16,6 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
 COMMANDS_DIR="$CLAUDE_DIR/commands/rpi"
 TEMPLATES_DIR="$CLAUDE_DIR/rpi"
+HOOKS_DIR="$CLAUDE_DIR/hooks/rpi"
 
 echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       RPI Workflow Installer           ║${NC}"
@@ -41,15 +42,17 @@ backup_if_exists() {
 }
 
 # Create directories
-echo -e "${GREEN}[1/4]${NC} Creating directories..."
+echo -e "${GREEN}[1/6]${NC} Creating directories..."
 mkdir -p "$COMMANDS_DIR"
 mkdir -p "$TEMPLATES_DIR"
+mkdir -p "$HOOKS_DIR"
 echo "  ✓ $COMMANDS_DIR"
 echo "  ✓ $TEMPLATES_DIR"
+echo "  ✓ $HOOKS_DIR"
 echo ""
 
 # Install commands
-echo -e "${GREEN}[2/4]${NC} Installing commands..."
+echo -e "${GREEN}[2/6]${NC} Installing commands..."
 for file in "$SCRIPT_DIR/commands"/*.md; do
     filename=$(basename "$file")
     target="$COMMANDS_DIR/$filename"
@@ -60,7 +63,7 @@ done
 echo ""
 
 # Install templates
-echo -e "${GREEN}[3/4]${NC} Installing templates..."
+echo -e "${GREEN}[3/6]${NC} Installing templates..."
 for file in "$SCRIPT_DIR/templates"/*.md; do
     filename=$(basename "$file")
     target="$TEMPLATES_DIR/$filename"
@@ -70,8 +73,76 @@ for file in "$SCRIPT_DIR/templates"/*.md; do
 done
 echo ""
 
+# Install hooks
+echo -e "${GREEN}[4/6]${NC} Installing hooks..."
+for file in "$SCRIPT_DIR/hooks"/*; do
+    filename=$(basename "$file")
+    target="$HOOKS_DIR/$filename"
+    backup_if_exists "$target"
+    cp "$file" "$target"
+    chmod +x "$target"
+    echo "  ✓ $filename"
+done
+echo ""
+
+# Register hook in settings.json
+echo -e "${GREEN}[5/6]${NC} Registering hook in settings.json..."
+SETTINGS_FILE="$CLAUDE_DIR/settings.json"
+RPI_HOOK_CMD="$HOME/.claude/hooks/rpi/session-info.py"
+
+# Check if jq is available
+if ! command -v jq &> /dev/null; then
+    echo -e "${YELLOW}  ⚠ jq not found. Manual hook registration required.${NC}"
+    echo -e "${YELLOW}  Add this to ~/.claude/settings.json:${NC}"
+    echo ""
+    cat << HOOK_CONFIG
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$RPI_HOOK_CMD"
+          }
+        ]
+      }
+    ]
+  }
+}
+HOOK_CONFIG
+    echo ""
+else
+    # Create settings.json if not exists
+    if [ ! -f "$SETTINGS_FILE" ]; then
+        echo '{}' > "$SETTINGS_FILE"
+        echo "  ✓ Created $SETTINGS_FILE"
+    fi
+
+    # Check if RPI hook already registered
+    if jq -e ".hooks.UserPromptSubmit[]?.hooks[]? | select(.command == \"$RPI_HOOK_CMD\")" "$SETTINGS_FILE" > /dev/null 2>&1; then
+        echo "  ✓ RPI hook already registered"
+    else
+        # Backup settings.json
+        cp "$SETTINGS_FILE" "${SETTINGS_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+
+        # Add RPI hook to UserPromptSubmit array
+        RPI_HOOK_ENTRY='{"hooks": [{"type": "command", "command": "'"$RPI_HOOK_CMD"'"}]}'
+
+        # Merge hook into settings
+        jq --argjson hook "$RPI_HOOK_ENTRY" '
+          .hooks //= {} |
+          .hooks.UserPromptSubmit //= [] |
+          .hooks.UserPromptSubmit += [$hook]
+        ' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp" && mv "${SETTINGS_FILE}.tmp" "$SETTINGS_FILE"
+
+        echo "  ✓ RPI hook registered in settings.json"
+    fi
+fi
+echo ""
+
 # Verify installation
-echo -e "${GREEN}[4/4]${NC} Verifying installation..."
+echo -e "${GREEN}[6/6]${NC} Verifying installation..."
 errors=0
 
 for cmd in research plan implement rule; do
@@ -91,6 +162,23 @@ for tpl in rpi-main-template research-template plan-template rule-template; do
         ((errors++))
     fi
 done
+
+# Verify hooks
+if [ -f "$HOOKS_DIR/session-info.py" ]; then
+    echo "  ✓ session-info.py hook file"
+else
+    echo -e "  ${RED}✗ session-info.py hook file missing${NC}"
+    ((errors++))
+fi
+
+# Verify hook registration
+if command -v jq &> /dev/null && [ -f "$SETTINGS_FILE" ]; then
+    if jq -e ".hooks.UserPromptSubmit[]?.hooks[]? | select(.command == \"$RPI_HOOK_CMD\")" "$SETTINGS_FILE" > /dev/null 2>&1; then
+        echo "  ✓ session-info.py hook registered"
+    else
+        echo -e "  ${YELLOW}⚠ session-info.py hook not registered in settings.json${NC}"
+    fi
+fi
 
 echo ""
 
