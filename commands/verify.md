@@ -50,7 +50,8 @@ flowchart TB
     AskFix -->|No| End[End with report only]
     CreateTasks --> GuideImpl[Guide to /rpi:implement]
     Success --> UpdateMain[Update rpi-main.md]
-    UpdateMain --> Complete[Verification Complete]
+    UpdateMain --> CleanEnv[Remove CLAUDE_CODE_TASK_LIST_ID<br/>from settings.local.json]
+    CleanEnv --> Complete[Verification Complete]
 ```
 
 ## Verification Steps
@@ -286,6 +287,22 @@ Options:
 3. Abort (issues are acceptable)
 ```
 
+## Environment Cleanup (Success Only)
+
+After all verifications pass and rpi-main.md is updated to "Complete", clean up the session environment:
+
+### Remove CLAUDE_CODE_TASK_LIST_ID
+
+Read `.claude/settings.local.json` and remove the `CLAUDE_CODE_TASK_LIST_ID` key from `env`:
+
+- If `env` object becomes empty after removal, delete the `env` key entirely
+- Preserve all other settings (e.g., `permissions`)
+- Write the updated JSON back to `.claude/settings.local.json`
+
+**Why**: A stale Task List ID from a completed workflow can cause confusion when starting a new `/rpi:research` → `/rpi:plan` cycle. The plan phase will set a fresh ID for the new session.
+
+**Note**: The Session ID is still recorded in `rpi-main.md` and `plan.md` for audit purposes. Only the live environment variable is removed.
+
 ## Exit Conditions
 
 ### Success Exit
@@ -301,6 +318,7 @@ All checks completed:
 Report: `docs/verify/[branch]/[date]-[feature]-verify.md`
 
 Updated: `docs/rpi/[branch]/rpi-main.md` (Status: Complete)
+Cleaned: `CLAUDE_CODE_TASK_LIST_ID` removed from `.claude/settings.local.json`
 
 Next steps:
 1. Create PR or merge
@@ -346,3 +364,4 @@ No fix tasks created. Review the report and fix manually.
 - Not checking plan vs implementation
 - Creating fix tasks without user approval
 - Not generating verification report
+- Not cleaning up `CLAUDE_CODE_TASK_LIST_ID` after successful verification
