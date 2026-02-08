@@ -8,7 +8,7 @@ When working with AI coding assistants on large tasks, you often hit context lim
 
 - **Separating concerns**: Each phase has a clear goal and output
 - **Preserving context**: Documents carry knowledge between sessions
-- **Enabling parallelism**: Research uses 4 parallel Explore agents; Implementation uses parallel Sub-Agents
+- **Enabling parallelism**: Research uses 4 parallel agents (or Agent Teams for cross-communication); Implementation uses parallel Sub-Agents
 - **Tracking progress**: Claude Tasks persist across `/clear` commands
 
 ## When to Use RPI
@@ -59,7 +59,14 @@ Define project-specific rules to guide Research agents:
 
 ### Phase 1: Research (`/rpi:research`)
 
-Launches 4 Explore agents **in parallel** to investigate:
+Launches 4 agents to investigate (supports two execution modes):
+
+| Mode | When | How |
+|------|------|-----|
+| **Agent Teams** | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` | 4 Teammates with direct cross-communication |
+| **Classic** | Default | 4 parallel Explore agents (independent) |
+
+Agents/Teammates explore:
 - **Architecture**: Project structure, layer patterns
 - **Similar Features**: Reference implementations to follow
 - **Dependencies**: Impact scope and affected files
@@ -203,6 +210,39 @@ your-project/
 ```
 
 ## Key Concepts
+
+### Agent Teams Mode (Experimental)
+
+Research phase supports [Claude Code Agent Teams](https://code.claude.com/docs/en/agent-teams) for enhanced codebase exploration. In Agent Teams mode, the 4 research agents become **Teammates** that can communicate directly with each other, enabling real-time cross-referencing of findings.
+
+**Enable per project:**
+```json
+// .claude/settings.local.json
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  }
+}
+```
+
+**Classic vs Agent Teams:**
+
+```
+Classic Mode (default):
+  Main Agent ─→ 4 independent Explore Agents ─→ Main Agent merges results
+
+Agent Teams Mode:
+  Lead Agent ─→ 4 Teammates (cross-communicate) ─→ Lead synthesizes
+                    ↑                    ↑
+                    └── share findings ──┘
+```
+
+Key advantages:
+- Architecture Teammate shares structural findings early, so other Teammates focus their search
+- Similar Feature Teammate shares reference paths with Dependency Teammate for accurate impact mapping
+- Lead Agent context stays clean (no 4-result merge burden)
+
+Remove the env var or set to `0` to revert to Classic mode.
 
 ### Project Rules
 
