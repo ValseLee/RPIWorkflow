@@ -303,6 +303,11 @@ See [examples/](./examples/) for detailed conversation examples:
 - Refactoring existing code
 - Session recovery
 
+## Roadmap
+
+- **Agent Teams for Implement phase**: Extend Agent Teams mode beyond Research to enable Teammate-based parallel implementation with real-time coordination. Paired with git worktree isolation to eliminate file write conflicts between parallel agents.
+- **Git worktree integration**: Each parallel Teammate works in an isolated worktree, merged back after completion. Enables safe parallel writes even on interdependent tasks.
+
 ## Requirements
 
 - [Claude Code](https://claude.ai/code) CLI
