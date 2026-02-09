@@ -55,7 +55,7 @@ Define project-specific rules to guide Research agents:
 - **dependencies**: DI patterns, module boundaries
 - **testing**: Test framework, mocking patterns
 
-**Output**: `~/.claude/rpi/rules/[type]/[project].md`
+**Output**: `<project>/.claude/rules/[type].md`
 
 ### Phase 1: Research (`/rpi:research`)
 
@@ -189,19 +189,19 @@ When context usage exceeds 40% (check Status Line):
 │   ├── implement.md       # /rpi:implement
 │   ├── verify.md          # /rpi:verify
 │   └── rule.md            # /rpi:rule
-└── rpi/                   # Templates & Rules
+└── rpi/                   # Templates
     ├── rpi-main-template.md
     ├── research-template.md
     ├── plan-template.md
     ├── verify-template.md
-    ├── rule-template.md
-    └── rules/             # Project-specific rules
-        ├── architecture/
-        ├── patterns/
-        ├── dependencies/
-        └── testing/
+    └── rule-template.md
 
 your-project/
+├── .claude/rules/          # Project-specific rules (optional)
+│   ├── architecture.md
+│   ├── patterns.md
+│   ├── dependencies.md
+│   └── testing.md
 └── docs/
     ├── research/[branch]/  # Research outputs
     ├── plans/[branch]/     # Plan documents
@@ -267,7 +267,7 @@ Rules provide project-specific context to Research agents. Each rule type guides
 /rpi:rule remove testing
 ```
 
-Rules are stored in `~/.claude/rpi/rules/[type]/[project-name].md` and automatically loaded during `/rpi:research`.
+Rules are stored in `<project>/.claude/rules/[type].md` and automatically loaded during `/rpi:research`.
 
 ### Batching
 
