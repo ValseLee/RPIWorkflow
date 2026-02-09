@@ -145,7 +145,7 @@ echo ""
 echo -e "${GREEN}[6/6]${NC} Verifying installation..."
 errors=0
 
-for cmd in research plan implement rule; do
+for cmd in research plan implement verify rule; do
     if [ -f "$COMMANDS_DIR/${cmd}.md" ]; then
         echo "  ✓ /rpi:$cmd"
     else
@@ -154,7 +154,7 @@ for cmd in research plan implement rule; do
     fi
 done
 
-for tpl in rpi-main-template research-template plan-template rule-template; do
+for tpl in rpi-main-template research-template plan-template verify-template rule-template; do
     if [ -f "$TEMPLATES_DIR/${tpl}.md" ]; then
         echo "  ✓ $tpl.md"
     else
@@ -192,6 +192,7 @@ if [ $errors -eq 0 ]; then
     echo "  /rpi:research  - Start research phase"
     echo "  /rpi:plan      - Create implementation plan"
     echo "  /rpi:implement - Execute the plan"
+    echo "  /rpi:verify    - Validate implementation"
     echo "  /rpi:rule      - Manage project-specific rules"
     echo ""
     echo "Rules are stored per-project at: <project>/.claude/rules/"
