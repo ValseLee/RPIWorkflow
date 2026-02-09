@@ -1,0 +1,10 @@
+{
+  "name": "rpi",
+  "version": "1.0.0",
+  "description": "Research → Plan → Implement: Structured workflow for Claude Code",
+  "author": {"name": "CelanLee", "url": "https://github.com/ValseLee"},
+  "homepage": "https://github.com/ValseLee/RPIWorkflow",
+  "repository": "https://github.com/ValseLee/RPIWorkflow",
+  "license": "MIT",
+  "keywords": ["workflow", "research", "planning", "implementation", "context-management", "brownfield"]
+}

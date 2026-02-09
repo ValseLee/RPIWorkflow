@@ -1,0 +1,14 @@
+{
+  "name": "rpi-workflow",
+  "owner": {"name": "CelanLee"},
+  "metadata": {
+    "description": "Research → Plan → Implement: Structured workflow for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [{
+    "name": "rpi",
+    "source": "./",
+    "description": "Research → Plan → Implement: Structured workflow for Claude Code",
+    "version": "1.0.0"
+  }]
+}

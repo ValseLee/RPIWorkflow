@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [{
+      "matcher": "*",
+      "hooks": [{
+        "type": "command",
+        "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-info.py"
+      }],
+      "description": "RPI session info and auto-save task list ID"
+    }]
+  }
+}
