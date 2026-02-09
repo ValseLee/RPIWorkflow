@@ -107,7 +107,7 @@ Task 3 waits for Task 1
 
 Location: `docs/plans/[branch-name]/YYYY-MM-DD-[feature]-plan.md`
 
-Use template: `~/.claude/rpi/plan-template.md`
+Use template: `templates/plan-template.md`
 
 Must include:
 - Objective

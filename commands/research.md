@@ -292,7 +292,7 @@ Project Rules:
 
 Location: `docs/research/[branch-name]/YYYY-MM-DD-[feature]-research.md`
 
-Use template: `~/.claude/rpi/research-template.md`
+Use template: `templates/research-template.md`
 
 Must include:
 - Executive Summary
@@ -308,7 +308,7 @@ Must include:
 
 Location: `docs/rpi/[branch-name]/rpi-main.md`
 
-Use template: `~/.claude/rpi/rpi-main-template.md`
+Use template: `templates/rpi-main-template.md`
 
 Create or update with:
 - Current Session: Plan (next phase)

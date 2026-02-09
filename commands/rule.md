@@ -57,7 +57,7 @@ Removes a rule file for the specified type.
 2. Detect project root (git root or current directory)
 3. Check if rule already exists at `<project>/.claude/rules/[type].md`
 4. If exists, ask: Update existing or create new?
-5. Load template from `~/.claude/rpi/rule-template.md`
+5. Load template from `templates/rule-template.md`
 6. Ask user for rule content via AskUserQuestion or direct input
 7. Create `<project>/.claude/rules/` directory if needed
 8. Write rule file
