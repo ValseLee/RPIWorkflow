@@ -126,62 +126,43 @@ Update with:
 - Session ID: [from session info hook]
 - Current Session: Implement
 
-## Session ID as Task List ID (CRITICAL)
+## Session ID as Task List ID (AUTO-SAVED)
 
-<CRITICAL>
-Task list persistence requires the session ID. Use the RPI session hook to retrieve it.
+The session info hook **automatically saves** the session ID to `.claude/settings.local.json`
+when tasks are created via `TaskCreate`. No manual saving is required.
 
-### Step 1: Retrieve Session ID
+### How Auto-Save Works
 
-Ask the user to type one of these trigger keywords:
+1. The hook runs on every `UserPromptSubmit`
+2. It checks if `~/.claude/tasks/<session_id>/` has `.json` task files
+3. If tasks exist and the ID isn't already saved, it merges into `.claude/settings.local.json`
+4. Only sessions with actual tasks trigger a save (empty sessions won't overwrite)
+
+### Verification (Optional)
+
+To verify session ID and tasks, ask the user to type one of:
 - `<session info>`
 - `<this session>`
 - `<rpi session>`
 
-The hook will inject the current session ID into the conversation context.
+The hook will show:
+- Current session ID
+- Save status (auto-saved / already saved / no tasks yet)
+- Task count and status summary
+- Full task list with statuses
 
-### Step 2: Save Session ID
-
-Save the session ID to `.claude/settings.local.json`:
-
-```json
-{
-  "env": {
-    "CLAUDE_CODE_TASK_LIST_ID": "[session_id from hook]"
-  }
-}
-```
-
-**Note**: If the file already exists, merge with existing content.
-
-### Step 3: Record Backup
+### Record Backup
 
 Also record the session ID in:
-- **rpi-main.md** - `Session ID: [id]`
+- **rpi-main.md** - `Session ID: [id]` (for recovery)
 - **plan.md footer** - For reference
-
-**Without saving the ID, Tasks will be lost on /clear!**
-</CRITICAL>
 
 ### Hook Not Installed?
 
 If the session info hook is not installed:
 
 1. **Run RPI installer** - `./install.sh` from RPIWorkflow directory
-2. **Add hook to settings.json** (global `~/.claude/settings.json`):
-   ```json
-   {
-     "hooks": {
-       "UserPromptSubmit": [
-         {
-           "type": "command",
-           "command": "~/.claude/hooks/rpi/session-info.py"
-         }
-       ]
-     }
-   }
-   ```
-3. **Restart Claude Code** to load hooks
+2. **Restart Claude Code** to load hooks
 
 ### Fallback: Recovery without Session ID
 
@@ -193,14 +174,13 @@ If session ID was not saved or is invalid:
    1. Read plan.md
    2. TaskCreate for each Step
    3. TaskUpdate to set dependencies
-   4. Retrieve new session ID with <session info>
-   5. Save to settings.local.json and rpi-main.md
+   4. Verify with <session info>
    ```
 
 ### Persistence Points
 
-Always record Session ID in these locations:
-1. **`.claude/settings.local.json`** - Primary (auto-loaded as CLAUDE_CODE_TASK_LIST_ID)
+Session ID is recorded in these locations:
+1. **`.claude/settings.local.json`** - Primary (auto-saved by hook, auto-loaded as env var)
 2. **rpi-main.md** - Backup (for recovery)
 3. **plan.md footer** - Reference (for documentation)
 
@@ -212,14 +192,13 @@ Before guiding user to `/clear`:
 - [ ] All Steps have TaskCreate called
 - [ ] Dependencies set via TaskUpdate
 - [ ] User approved the plan
-- [ ] User typed `<session info>` to retrieve session ID
-- [ ] Session ID saved to `.claude/settings.local.json` as `CLAUDE_CODE_TASK_LIST_ID`
+- [ ] Session ID auto-saved (verify with `<session info>` if needed)
 - [ ] Session ID recorded in rpi-main.md (backup)
 - [ ] Session ID appended to plan.md footer (reference)
 
 ## Exit Message Template
 
-**IMPORTANT**: The session ID is retrieved via the `<session info>` hook trigger.
+**IMPORTANT**: The session ID is auto-saved by the hook. Use `<session info>` to verify.
 
 ```
 Plan phase complete.
