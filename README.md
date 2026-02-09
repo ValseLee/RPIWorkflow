@@ -103,7 +103,29 @@ Validates implementation completeness:
 
 ## Installation
 
-### Quick Install
+### Plugin Install (Recommended)
+
+```bash
+# 1. Add the RPI Workflow marketplace
+/plugin marketplace add ValseLee/RPIWorkflow
+
+# 2. Install the plugin
+/plugin install rpi@rpi-workflow
+```
+
+The plugin install automatically:
+- Registers all RPI commands (`/rpi:research`, `/rpi:plan`, `/rpi:implement`, `/rpi:verify`, `/rpi:rule`)
+- Sets up session management hooks
+- Manages templates and configurations
+
+To update later:
+```bash
+/plugin marketplace update
+```
+
+### Manual Install (Legacy)
+
+For backward compatibility or custom setups:
 
 ```bash
 # Clone the repository
@@ -114,7 +136,7 @@ cd RPIWorkflow
 ./install.sh
 ```
 
-### Manual Install
+**Manual setup steps:**
 
 1. Copy commands to Claude Code commands directory:
 ```bash
@@ -131,6 +153,8 @@ cp templates/*.md ~/.claude/rpi/
 3. Restart Claude Code or start a new session.
 
 ## Usage
+
+> **Note**: All commands use the `/rpi:` namespace regardless of installation method (plugin or manual).
 
 ### Starting a New Feature
 
@@ -181,6 +205,44 @@ When context usage exceeds 40% (check Status Line):
 
 ## Project Structure
 
+### Plugin Structure (Recommended)
+
+```
+RPIWorkflow/                # Plugin repository
+├── .claude-plugin/
+│   ├── plugin.json         # Plugin manifest
+│   └── marketplace.json    # Marketplace metadata
+├── commands/               # Command definitions
+│   ├── research.md         # /rpi:research
+│   ├── plan.md             # /rpi:plan
+│   ├── implement.md        # /rpi:implement
+│   ├── verify.md           # /rpi:verify
+│   └── rule.md             # /rpi:rule
+├── hooks/
+│   └── hooks.json          # Hook registration manifest
+├── templates/              # Document templates
+│   ├── rpi-main-template.md
+│   ├── research-template.md
+│   ├── plan-template.md
+│   ├── verify-template.md
+│   └── rule-template.md
+└── install.sh              # Legacy manual install
+
+your-project/
+├── .claude/rules/          # Project-specific rules (optional)
+│   ├── architecture.md
+│   ├── patterns.md
+│   ├── dependencies.md
+│   └── testing.md
+└── docs/
+    ├── research/[branch]/  # Research outputs
+    ├── plans/[branch]/     # Plan documents
+    ├── verify/[branch]/    # Verification reports
+    └── rpi/[branch]/       # RPI status tracking
+```
+
+### Manual Install Structure (Legacy)
+
 ```
 ~/.claude/
 ├── commands/rpi/          # Slash commands
@@ -195,18 +257,6 @@ When context usage exceeds 40% (check Status Line):
     ├── plan-template.md
     ├── verify-template.md
     └── rule-template.md
-
-your-project/
-├── .claude/rules/          # Project-specific rules (optional)
-│   ├── architecture.md
-│   ├── patterns.md
-│   ├── dependencies.md
-│   └── testing.md
-└── docs/
-    ├── research/[branch]/  # Research outputs
-    ├── plans/[branch]/     # Plan documents
-    ├── verify/[branch]/    # Verification reports
-    └── rpi/[branch]/       # RPI status tracking
 ```
 
 ## Key Concepts

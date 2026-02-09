@@ -18,6 +18,12 @@ COMMANDS_DIR="$CLAUDE_DIR/commands/rpi"
 TEMPLATES_DIR="$CLAUDE_DIR/rpi"
 HOOKS_DIR="$CLAUDE_DIR/hooks/rpi"
 
+echo ""
+echo "Note: Plugin installation is now recommended."
+echo "  Run: claude plugin install github:ValseLee/RPIWorkflow"
+echo "  This script is maintained for backward compatibility."
+echo ""
+
 echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       RPI Workflow Installer           ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"

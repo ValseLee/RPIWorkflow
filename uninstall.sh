@@ -17,6 +17,11 @@ HOOKS_DIR="$CLAUDE_DIR/hooks/rpi"
 SETTINGS_FILE="$CLAUDE_DIR/settings.json"
 RPI_HOOK_CMD="$HOME/.claude/hooks/rpi/session-info.py"
 
+echo ""
+echo "Note: For plugin installations, use: claude plugin uninstall rpi"
+echo "  This script is for manual (legacy) installations only."
+echo ""
+
 echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       RPI Workflow Uninstaller         ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
