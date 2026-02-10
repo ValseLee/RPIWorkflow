@@ -27,24 +27,21 @@ The Research phase deploys **4 parallel Explore Agents** to thoroughly understan
 ### For Greenfield Projects?
 
 For brand new projects with no existing code:
-- Consider using `/gsd:new-project` for initial setup and architecture decisions
 - Transition to RPI once your codebase has foundational structure (entities, core modules, basic patterns)
 
 **Rule of thumb**: If there's code worth researching, RPI is the right choice.
 
 ## Workflow Overview
 
-```
-┌─────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Rule   │────▶│  Research   │────▶│    Plan     │────▶│  Implement  │────▶│   Verify    │
-│(optional)│     │             │     │             │     │             │     │             │
-│ Project │     │ 4 Explore   │     │ Batch +     │     │ Sub-Agents  │     │ Build/Test  │
-│ Context │     │ Agents      │     │ Task Design │     │ + Tracking  │     │ + Plan Check│
-└─────────┘     └─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
-      │               │                   │                   │                   │
-      ▼               ▼                   ▼                   ▼                   ▼
- rules/*.md      research.md          plan.md            TaskList           verify.md
-                 rpi-main.md        (Tasks created)      (Progress)          (Report)
+```mermaid
+flowchart LR
+    Rule(["Rule (optional)"]) --> Research(["Research"]) --> Plan(["Plan"]) --> Implement(["Implement"]) --> Verify(["Verify"])
+
+    Rule -.-> R1["rules/*.md"]
+    Research -.-> R2["research.md, rpi-main.md"]
+    Plan -.-> R3["plan.md + Tasks"]
+    Implement -.-> R4["TaskList"]
+    Verify -.-> R5["verify.md"]
 ```
 
 ### Setup: Rule (`/rpi:rule`) - Optional
@@ -219,14 +216,26 @@ RPIWorkflow/                # Plugin repository
 │   ├── verify.md           # /rpi:verify
 │   └── rule.md             # /rpi:rule
 ├── hooks/
-│   └── hooks.json          # Hook registration manifest
+│   ├── hooks.json          # Hook registration manifest
+│   └── session-info.py     # Session management hook
 ├── templates/              # Document templates
 │   ├── rpi-main-template.md
 │   ├── research-template.md
 │   ├── plan-template.md
 │   ├── verify-template.md
-│   └── rule-template.md
-└── install.sh              # Legacy manual install
+│   ├── rule-template.md
+│   └── rules/              # Example rule files
+│       ├── architecture-example.md
+│       ├── dependencies-example.md
+│       ├── patterns-example.md
+│       └── testing-example.md
+├── examples/
+│   └── examples.md
+├── install.sh              # Legacy manual install
+├── uninstall.sh            # Legacy manual uninstall
+├── CONTRIBUTING.md
+├── LICENSE
+└── README.md
 
 your-project/
 ├── .claude/rules/          # Project-specific rules (optional)
@@ -251,6 +260,8 @@ your-project/
 │   ├── implement.md       # /rpi:implement
 │   ├── verify.md          # /rpi:verify
 │   └── rule.md            # /rpi:rule
+├── hooks/rpi/             # Hook scripts
+│   └── session-info.py    # Session management
 └── rpi/                   # Templates
     ├── rpi-main-template.md
     ├── research-template.md
@@ -277,14 +288,38 @@ Research phase supports [Claude Code Agent Teams](https://code.claude.com/docs/e
 
 **Classic vs Agent Teams:**
 
+```mermaid
+---
+title: Classic Mode (default)
+---
+flowchart LR
+    Main["Main Agent"] --> E1["Explore 1"]
+    Main --> E2["Explore 2"]
+    Main --> E3["Explore 3"]
+    Main --> E4["Explore 4"]
+    E1 --> Merge["Main Agent merges results"]
+    E2 --> Merge
+    E3 --> Merge
+    E4 --> Merge
 ```
-Classic Mode (default):
-  Main Agent ─→ 4 independent Explore Agents ─→ Main Agent merges results
 
-Agent Teams Mode:
-  Lead Agent ─→ 4 Teammates (cross-communicate) ─→ Lead synthesizes
-                    ↑                    ↑
-                    └── share findings ──┘
+```mermaid
+---
+title: Agent Teams Mode
+---
+flowchart LR
+    Lead["Lead Agent"] --> T1["Teammate 1"]
+    Lead --> T2["Teammate 2"]
+    Lead --> T3["Teammate 3"]
+    Lead --> T4["Teammate 4"]
+    T1 <-.-> T2
+    T2 <-.-> T3
+    T3 <-.-> T4
+    T4 <-.-> T1
+    T1 --> Synth["Lead synthesizes"]
+    T2 --> Synth
+    T3 --> Synth
+    T4 --> Synth
 ```
 
 Key advantages:
@@ -331,12 +366,20 @@ Tasks are grouped by complexity:
 ### Parallel Execution
 
 Tasks without dependencies run in parallel:
+```mermaid
+flowchart LR
+    T1["Task 1: Create UserEntity"]
+    T2["Task 2: Create BookEntity"]
+    T3["Task 3: Create UserRepository"]
+    T1 --> T3
+    T2 ~~~ T3
+
+    style T1 fill:#4CAF50,color:#fff
+    style T2 fill:#4CAF50,color:#fff
+    style T3 fill:#FF9800,color:#fff
 ```
-Batch 1:
-- Task 1: "Create UserEntity" ← parallel
-- Task 2: "Create BookEntity" ← parallel
-- Task 3: "Create UserRepository" ← blockedBy: [1]
-```
+
+> Task 1, 2: parallel / Task 3: blockedBy [1]
 
 ### Task Persistence
 
