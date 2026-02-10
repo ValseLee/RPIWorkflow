@@ -3,7 +3,7 @@
 > **Branch**: [branch-name]
 > **Created**: YYYY-MM-DD
 > **Current Session**: Research | Plan | Implement | Verify | Complete
-> **Task List ID**: [from Plan session - set CLAUDE_CODE_TASK_LIST_ID before /clear]
+> **Task List ID**: [auto-assigned during Plan phase]
 > **Last Updated**: YYYY-MM-DD HH:MM
 
 ## Documents
@@ -35,11 +35,11 @@
 ## Quick Resume
 
 To resume from current state:
-```bash
-# 1. Set environment variable to preserve TaskList (required after Plan session)
-export CLAUDE_CODE_TASK_LIST_ID="[Task List ID above]"
 
-# 2. After starting Claude Code
+> Task List ID is auto-assigned during Plan phase and saved to `.claude/settings.local.json`. No manual export needed.
+
+```bash
+# After starting Claude Code
 @docs/rpi/[branch]/rpi-main.md - continue RPI
 ```
 

@@ -103,7 +103,7 @@ All batches complete. Implementation finished!"
 
 ### Session 2: Plan
 
-[Batch structure created]
+[Batch structure created, Task List ID auto-assigned]
 
 **Batch 1**: Core (Entity, Interface) - 3 tasks
 **Batch 2**: Data (Model, Repository, Service) - 4 tasks
@@ -205,15 +205,13 @@ Resume from where we left off?"
 | Implement | `/rpi:implement` | `@rpi-main.md` or TaskList |
 | Verify | `/rpi:verify` | `@rpi-main.md` |
 
-### Key Environment Variable
+### Task List ID (Auto-Assigned)
 
-```bash
-# Set before /clear to persist tasks
-export CLAUDE_CODE_TASK_LIST_ID="[id]"
-```
+Task List ID is automatically assigned during the Plan phase.
+No manual export is needed -- tasks persist across `/clear` sessions automatically.
 
 ### Context Management
 
 - Check Status Line after each batch
 - Over 40%? Run `/clear` and resume
-- Tasks persist if env var is set
+- Tasks persist automatically (ID auto-assigned during Plan phase)
