@@ -215,4 +215,4 @@ Task List ID is **automatically assigned** at the start of Plan phase, before Ta
 - **Location**: `.claude/settings.local.json` → `env.CLAUDE_CODE_TASK_LIST_ID`
 - **Persistence**: Survives `/clear` — no manual saving required
 
-To verify: type `<session info>` to see the current Task List ID.
+To verify: check `.claude/settings.local.json` for `CLAUDE_CODE_TASK_LIST_ID`.
