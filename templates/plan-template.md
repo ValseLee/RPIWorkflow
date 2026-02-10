@@ -194,7 +194,7 @@ Task(prompt="Execute Task 2: Create Product model...")
 - [ ] Plan reviewed by user
 - [ ] Questions answered
 - [ ] **Tasks created for all Steps**
-- [ ] **Session ID retrieved via `<session info>`**
+- [ ] **Task List ID auto-assigned (check settings.local.json)**
 - [ ] Ready to implement
 
 ---
@@ -202,26 +202,17 @@ Task(prompt="Execute Task 2: Create Product model...")
 **Approved**: Yes / No
 **Approval Date**: YYYY-MM-DD
 **Tasks Created**: Yes / No
-**Session ID**: [from session info hook]
+**Task List ID**: [auto-assigned, YYYY-MM-DD-feature-name format]
 **Notes**: Any conditions or modifications to the plan
 
 ---
 
-## Session Handoff (CRITICAL)
+## Task List ID (AUTO-ASSIGNED)
 
-After Tasks are created, retrieve session ID and save it:
+Task List ID is **automatically assigned** at the start of Plan phase, before Tasks are created.
 
-### Step 1: Get Session ID
-Type `<session info>` to trigger the hook and get the current session ID.
+- **Format**: `YYYY-MM-DD-[feature-name]` (from research.md filename)
+- **Location**: `.claude/settings.local.json` → `env.CLAUDE_CODE_TASK_LIST_ID`
+- **Persistence**: Survives `/clear` — no manual saving required
 
-### Step 2: Save to settings.local.json
-```json
-// .claude/settings.local.json
-{
-  "env": {
-    "CLAUDE_CODE_TASK_LIST_ID": "[session_id from hook]"
-  }
-}
-```
-
-**Without this step, Tasks will be lost on /clear!**
+To verify: type `<session info>` to see the current Task List ID.

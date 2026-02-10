@@ -17,6 +17,7 @@ import json
 import os
 import sys
 from pathlib import Path
+import re
 
 try:
     input_data = json.load(sys.stdin)
@@ -75,6 +76,11 @@ def auto_save_session_id():
     env = settings.get("env", {})
     if env.get("CLAUDE_CODE_TASK_LIST_ID") == session_id:
         return False, "already saved"
+
+    # Guard: Do not overwrite RPI-format ID with UUID session ID
+    existing_id = env.get("CLAUDE_CODE_TASK_LIST_ID", "")
+    if existing_id and re.match(r"\d{4}-\d{2}-\d{2}-.+", existing_id):
+        return False, "rpi-format id preserved"
 
     # Merge and save
     if "env" not in settings:
