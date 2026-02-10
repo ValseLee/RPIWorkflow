@@ -112,7 +112,6 @@ Validates implementation completeness:
 
 The plugin install automatically:
 - Registers all RPI commands (`/rpi:research`, `/rpi:plan`, `/rpi:implement`, `/rpi:verify`, `/rpi:rule`)
-- Sets up session management hooks
 - Manages templates and configurations
 
 To update later:
@@ -214,9 +213,6 @@ RPIWorkflow/                # Plugin repository
 │   ├── implement.md        # /rpi:implement
 │   ├── verify.md           # /rpi:verify
 │   └── rule.md             # /rpi:rule
-├── hooks/
-│   ├── hooks.json          # Hook registration manifest
-│   └── session-info.py     # Session management hook
 ├── templates/              # Document templates
 │   ├── rpi-main-template.md
 │   ├── research-template.md
@@ -259,8 +255,6 @@ your-project/
 │   ├── implement.md       # /rpi:implement
 │   ├── verify.md          # /rpi:verify
 │   └── rule.md            # /rpi:rule
-├── hooks/rpi/             # Hook scripts
-│   └── session-info.py    # Session management
 └── rpi/                   # Templates
     ├── rpi-main-template.md
     ├── research-template.md
@@ -387,20 +381,8 @@ Task List ID is **automatically assigned** during the Plan phase and saved to `.
 **How it works**:
 1. Plan phase generates ID from research filename (format: `YYYY-MM-DD-[feature-name]`)
 2. ID is saved to `.claude/settings.local.json` → `env.CLAUDE_CODE_TASK_LIST_ID`
-3. Session management hook guards the ID across sessions
 
 No manual `export` needed — just run `/clear` and resume with `/rpi:implement`.
-
-### Session Management Hook
-
-RPI includes a `session-info.py` hook (`UserPromptSubmit`) that runs on every prompt to manage Task List ID persistence automatically.
-
-**Key features**:
-- **Auto-save**: When tasks exist for the current session, saves session ID to `.claude/settings.local.json`
-- **RPI format guard**: Preserves RPI-format IDs (`YYYY-MM-DD-*`) — won't overwrite with UUID session IDs
-- **Session info trigger**: Type `<session info>`, `<this session>`, or `<rpi session>` to view current session status and task verification
-
-The hook is registered via `hooks/hooks.json` and installed automatically with the plugin.
 
 ## Examples
 
@@ -419,22 +401,13 @@ See [examples/](./examples/) for detailed conversation examples:
 
 - [Claude Code](https://claude.ai/code) CLI
 - Git (for version control)
-- Python 3.7+ (for session management hook)
-- jq (optional, used by `install.sh` for hook registration)
 
 ## Troubleshooting
 
 ### Tasks not persisting after `/clear`
 
-- Verify Task List ID is saved: type `<session info>` to check
 - Ensure you're on the same branch — Task List ID is per-project
 - Check `.claude/settings.local.json` has `CLAUDE_CODE_TASK_LIST_ID` in `env`
-
-### Hook not running
-
-- Verify `hooks/hooks.json` is registered: check `~/.claude/settings.json` or project `.claude/settings.local.json` for hook paths
-- Run `python3 hooks/session-info.py` manually to check for Python errors
-- Ensure Python 3.7+ is installed
 
 ### Context overflow during implementation
 
