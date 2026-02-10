@@ -30,16 +30,16 @@ No rules to load - reference research.md only (minimize context)
 ```mermaid
 flowchart TB
     Start[User: /rpi:plan] --> Load[Load research.md]
-    Load --> Analyze[Analyze scope & complexity]
+    Load --> ExtractID[Extract feature name from research.md path]
+    ExtractID --> AssignID[Assign Task List ID to settings.local.json]
+    AssignID --> Analyze[Analyze scope & complexity]
     Analyze --> Design[Design batch structure]
     Design --> Write[Write plan.md]
     Write --> Tasks[Create Claude Tasks]
     Tasks --> Deps[Set task dependencies]
     Deps --> Verify[Verify with TaskList]
     Verify --> Approval[Ask user approval]
-    Approval --> Session[User: session info - get session ID via hook]
-    Session --> Save[Save SESSION_ID as TASK_LIST_ID]
-    Save --> Clear[Guide user to /clear]
+    Approval --> Clear[Guide user to /clear]
 ```
 
 ## Batch Design Guidelines
@@ -123,66 +123,46 @@ Must include:
 
 Update with:
 - Plan document: Approved
-- Session ID: [from session info hook]
+- Task List ID: [auto-assigned]
 - Current Session: Implement
 
-## Session ID as Task List ID (AUTO-SAVED)
+## Task List ID Auto-Assign
 
-The session info hook **automatically saves** the session ID to `.claude/settings.local.json`
-when tasks are created via `TaskCreate`. No manual saving is required.
+Plan phase automatically assigns a Task List ID **before** creating Tasks.
 
-### How Auto-Save Works
+### ID Format
 
-1. The hook runs on every `UserPromptSubmit`
-2. It checks if `~/.claude/tasks/<session_id>/` has `.json` task files
-3. If tasks exist and the ID isn't already saved, it merges into `.claude/settings.local.json`
-4. Only sessions with actual tasks trigger a save (empty sessions won't overwrite)
+`YYYY-MM-DD-[feature-name]`
 
-### Verification (Optional)
+- Date: from research.md filename
+- Feature name: from research.md filename (date and `-research.md` removed)
+- Example: `2026-02-10-task-list-id-auto-assign`
 
-To verify session ID and tasks, ask the user to type one of:
-- `<session info>`
-- `<this session>`
-- `<rpi session>`
+### How It Works
 
-The hook will show:
-- Current session ID
-- Save status (auto-saved / already saved / no tasks yet)
-- Task count and status summary
-- Full task list with statuses
+1. Extract feature name from research.md path:
+   - Input: `docs/research/main/2026-02-10-task-list-id-auto-assign-research.md`
+   - Extract: `2026-02-10-task-list-id-auto-assign`
 
-### Record Backup
-
-Also record the session ID in:
-- **rpi-main.md** - `Session ID: [id]` (for recovery)
-- **plan.md footer** - For reference
-
-### Hook Not Installed?
-
-If the session info hook is not installed:
-
-1. **Run RPI installer** - `./install.sh` from RPIWorkflow directory
-2. **Restart Claude Code** to load hooks
-
-### Fallback: Recovery without Session ID
-
-If session ID was not saved or is invalid:
-
-1. **Check rpi-main.md** - Session ID may be recorded there
-2. **Recreate tasks from plan.md**:
+2. Write to `.claude/settings.local.json`:
+   ```json
+   {
+     "env": {
+       "CLAUDE_CODE_TASK_LIST_ID": "2026-02-10-task-list-id-auto-assign"
+     }
+   }
    ```
-   1. Read plan.md
-   2. TaskCreate for each Step
-   3. TaskUpdate to set dependencies
-   4. Verify with <session info>
-   ```
+   Use Read to check existing settings, merge `env` key, Write back.
 
-### Persistence Points
+3. Record in rpi-main.md and plan.md footer.
 
-Session ID is recorded in these locations:
-1. **`.claude/settings.local.json`** - Primary (auto-saved by hook, auto-loaded as env var)
-2. **rpi-main.md** - Backup (for recovery)
-3. **plan.md footer** - Reference (for documentation)
+4. Proceed with TaskCreate (Tasks will use the assigned ID).
+
+### Fallback
+
+If research.md path is not provided or filename cannot be parsed:
+- Ask user for feature name via AskUserQuestion
+- Generate ID as `YYYY-MM-DD-[user-provided-name]` (today's date)
 
 ## Exit Conditions
 
@@ -192,13 +172,11 @@ Before guiding user to `/clear`:
 - [ ] All Steps have TaskCreate called
 - [ ] Dependencies set via TaskUpdate
 - [ ] User approved the plan
-- [ ] Session ID auto-saved (verify with `<session info>` if needed)
-- [ ] Session ID recorded in rpi-main.md (backup)
-- [ ] Session ID appended to plan.md footer (reference)
+- [ ] Task List ID auto-assigned to settings.local.json
+- [ ] Task List ID recorded in rpi-main.md
+- [ ] Task List ID recorded in plan.md footer
 
 ## Exit Message Template
-
-**IMPORTANT**: The session ID is auto-saved by the hook. Use `<session info>` to verify.
 
 ```
 Plan phase complete.
@@ -206,17 +184,17 @@ Plan phase complete.
 Documents:
 - `docs/plans/[branch]/[date]-[feature]-plan.md`
 - Updated `docs/rpi/[branch]/rpi-main.md`
-- Updated `.claude/settings.local.json` with Session ID
+- Updated `.claude/settings.local.json` with Task List ID
 
 Tasks created: N tasks across M batches
-Session ID: [session-id-from-hook]
+Task List ID: [YYYY-MM-DD-feature-name]
 
 Next steps:
 1. Run `/clear` to start fresh session
 2. Run `/rpi:implement` to start implementation
 ```
 
-**Note**: Session ID saved as `CLAUDE_CODE_TASK_LIST_ID` is automatically loaded on next session.
+**Note**: Task List ID saved as `CLAUDE_CODE_TASK_LIST_ID` is automatically loaded on next session.
 
 ## Approval Flow
 
@@ -231,6 +209,6 @@ Use `AskUserQuestion` to get approval:
 - Planning without research.md
 - Creating tasks without dependencies analysis
 - Skipping TaskCreate for any Step
-- Forgetting to retrieve session ID via `<session info>`
-- Not saving session ID to settings.local.json
+- Not auto-assigning Task List ID before TaskCreate
+- Forgetting to record Task List ID in rpi-main.md
 - Not getting user approval before proceeding

@@ -20,7 +20,7 @@ HOOKS_DIR="$CLAUDE_DIR/hooks/rpi"
 
 echo ""
 echo "Note: Plugin installation is now recommended."
-echo "  Run: claude plugin install github:ValseLee/RPIWorkflow"
+echo "  See README.md for plugin installation instructions."
 echo "  This script is maintained for backward compatibility."
 echo ""
 

@@ -149,6 +149,8 @@ Return:
 
 Location: `docs/verify/[branch-name]/YYYY-MM-DD-[feature]-verify.md`
 
+Use template: `templates/verify-template.md`
+
 **Success Report:**
 ```markdown
 # Verification Report: [Feature Name]
